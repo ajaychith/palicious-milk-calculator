@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ChevronRight,
   RefreshCcw,
@@ -8,31 +8,28 @@ import {
   Package,
   Droplets,
   Activity,
+  Smartphone,
+  Zap,
+  ShieldCheck,
 } from "lucide-react";
 import "./App.css";
 
 /*
-  PALICIOUS — Ultra Premium Liquid 3D Pricing Workspace
-  ------------------------------------------------------
-  Kept your existing pricing calculation logic.
-  Upgraded only UI/UX, responsiveness, interaction, and performance style.
+  PALICIOUS — Android Premium Fast UI
+  -----------------------------------
+  Goal: premium mobile-first UX without heavy desktop effects.
+  Core pricing calculation logic is kept the same.
 */
 
-// Replace these with local optimized WebP files later for the fastest production build.
-// Example: "/palicious-assets/buffalo.webp"
 const ASSETS = {
   buffalo:
-    "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=72&w=900&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=60&w=640&fm=webp&auto=format&fit=crop",
   cow:
-    "https://images.unsplash.com/photo-1563636619-e9143da7973b?q=72&w=900&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1563636619-e9143da7973b?q=60&w=640&fm=webp&auto=format&fit=crop",
   curd:
-    "https://images.unsplash.com/photo-1488477181946-6428a0291777?q=72&w=900&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1488477181946-6428a0291777?q=60&w=640&fm=webp&auto=format&fit=crop",
   universal:
-    "https://images.unsplash.com/photo-1618044733300-9472054094ee?q=72&w=900&auto=format&fit=crop",
-  profit:
-    "https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?q=72&w=900&auto=format&fit=crop",
-  loss:
-    "https://images.unsplash.com/photo-1618044619888-009e412ff12a?q=72&w=900&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1618044733300-9472054094ee?q=60&w=640&fm=webp&auto=format&fit=crop",
 };
 
 const PRODUCT_CONFIG = {
@@ -42,13 +39,11 @@ const PRODUCT_CONFIG = {
     shortTitle: "Buffalo",
     icon: Droplets,
     image: ASSETS.buffalo,
-    accent: "cyan",
+    tone: "cyan",
     quantityOptions: [
       { label: "500 ml", value: "500 ml" },
       { label: "1 litre", value: "1 litre" },
     ],
-    launchTitle: "Buffalo Milk Intelligence",
-    launchText: "Opening premium margin control for buffalo milk SKUs.",
   },
   cow: {
     key: "cow",
@@ -56,13 +51,11 @@ const PRODUCT_CONFIG = {
     shortTitle: "Cow",
     icon: Droplets,
     image: ASSETS.cow,
-    accent: "emerald",
+    tone: "green",
     quantityOptions: [
       { label: "500 ml", value: "500 ml" },
       { label: "1 litre", value: "1 litre" },
     ],
-    launchTitle: "Cow Milk Intelligence",
-    launchText: "Opening premium margin control for cow milk SKUs.",
   },
   curd: {
     key: "curd",
@@ -70,13 +63,11 @@ const PRODUCT_CONFIG = {
     shortTitle: "Curd",
     icon: Package,
     image: ASSETS.curd,
-    accent: "amber",
+    tone: "amber",
     quantityOptions: [
       { label: "250 ml", value: "250 ml" },
       { label: "500 ml", value: "500 ml" },
     ],
-    launchTitle: "Curd Pack Intelligence",
-    launchText: "Preparing packaging, dairy cost, and sales margin flow.",
   },
 };
 
@@ -84,30 +75,34 @@ const MODULES = [
   {
     type: "buffalo",
     label: "Buffalo",
-    subtitle: "High-fat milk margin",
+    subtitle: "High-fat milk pricing",
     image: ASSETS.buffalo,
-    metric: "Daily SKU",
+    metric: "Milk SKU",
+    tone: "cyan",
   },
   {
     type: "cow",
     label: "Cow",
-    subtitle: "Fresh cow milk pricing",
+    subtitle: "Daily cow milk margin",
     image: ASSETS.cow,
-    metric: "Retail SKU",
+    metric: "Milk SKU",
+    tone: "green",
   },
   {
     type: "curd",
     label: "Curd",
-    subtitle: "Pack pricing engine",
+    subtitle: "Pack margin engine",
     image: ASSETS.curd,
     metric: "Pack SKU",
+    tone: "amber",
   },
   {
     type: "universal",
     label: "Universal",
     subtitle: "Any product margin",
     image: ASSETS.universal,
-    metric: "Custom SKU",
+    metric: "Custom",
+    tone: "violet",
   },
 ];
 
@@ -202,93 +197,72 @@ function getStatus(result) {
   if (result.totalProductionCost <= 0 || result.sellingPrice <= 0) {
     return {
       label: "Awaiting Input",
-      className: "is-idle",
+      className: "idle",
       icon: Activity,
-      message: "Enter cost and selling price to start live margin intelligence.",
+      message: "Enter cost and selling price to start live margin analysis.",
     };
   }
 
   if (result.actualProfit < 0) {
     return {
       label: "Critical Loss",
-      className: "is-loss",
+      className: "loss",
       icon: TrendingDown,
-      message: "Selling price is below cost. Increase price or reduce production cost.",
+      message: "Selling price is below total cost. Increase price or reduce expenses.",
     };
   }
 
   if (result.actualProfitPercent >= 40) {
     return {
       label: "Excellent Margin",
-      className: "is-profit",
+      className: "profit",
       icon: TrendingUp,
-      message: "Very strong profitability. This SKU has excellent business potential.",
+      message: "Very strong profitability. This product can scale well.",
     };
   }
 
   if (result.actualProfitPercent >= 20) {
     return {
       label: "Healthy Margin",
-      className: "is-good",
+      className: "good",
       icon: TrendingUp,
-      message: "Stable profit margin. Suitable for daily operations and scaling.",
+      message: "Stable margin for daily operations and customer growth.",
     };
   }
 
   return {
     label: "Low Margin Alert",
-    className: "is-warning",
+    className: "warning",
     icon: Activity,
     message: "Profit exists, but margin is tight. Optimize cost or selling price.",
   };
 }
 
-function safePercent(value) {
+function clampPercent(value) {
   if (!Number.isFinite(value)) return 0;
   return Math.max(0, Math.min(100, value));
 }
 
-function TiltCard({ children, className = "", onClick, active = false, type }) {
-  const ref = useRef(null);
+function useAndroidPerformanceMode() {
+  useEffect(() => {
+    const ua = navigator.userAgent || "";
+    const isAndroid = /Android/i.test(ua);
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
-  const handleMove = (event) => {
-    const node = ref.current;
-    if (!node || window.innerWidth < 900) return;
+    document.documentElement.classList.toggle("android-fast", isAndroid);
+    document.documentElement.classList.toggle("reduce-motion", Boolean(reduceMotion));
 
-    const rect = node.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const rotateY = ((x / rect.width) - 0.5) * 10;
-    const rotateX = ((0.5 - y / rect.height)) * 10;
+    return () => {
+      document.documentElement.classList.remove("android-fast");
+      document.documentElement.classList.remove("reduce-motion");
+    };
+  }, []);
+}
 
-    node.style.setProperty("--rx", `${rotateX.toFixed(2)}deg`);
-    node.style.setProperty("--ry", `${rotateY.toFixed(2)}deg`);
-    node.style.setProperty("--mx", `${((x / rect.width) * 100).toFixed(2)}%`);
-    node.style.setProperty("--my", `${((y / rect.height) * 100).toFixed(2)}%`);
-  };
-
-  const handleLeave = () => {
-    const node = ref.current;
-    if (!node) return;
-    node.style.setProperty("--rx", "0deg");
-    node.style.setProperty("--ry", "0deg");
-    node.style.setProperty("--mx", "50%");
-    node.style.setProperty("--my", "50%");
-  };
-
-  return (
-    <button
-      ref={ref}
-      type="button"
-      data-module={type}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      onClick={onClick}
-      className={`tilt-card ${active ? "is-active" : ""} ${className}`}
-    >
-      {children}
-    </button>
-  );
+function nudge() {
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    navigator.vibrate?.(8);
+  }
 }
 
 function InputField({
@@ -301,9 +275,9 @@ function InputField({
   hint = "",
 }) {
   return (
-    <div className="field-wrap">
-      <label>{label}</label>
-      <div className={`liquid-input ${readOnly ? "is-readonly" : ""}`}>
+    <label className="field-card">
+      <span className="field-label">{label}</span>
+      <span className={`field-control ${readOnly ? "readonly" : ""}`}>
         {prefix ? <span className="field-prefix">{prefix}</span> : null}
         <input
           type="number"
@@ -312,19 +286,19 @@ function InputField({
           min={readOnly ? undefined : "0"}
           step="0.01"
           inputMode="decimal"
-          onFocus={(e) => !readOnly && e.target.select()}
-          onChange={(e) => !readOnly && onChange(e.target.value)}
+          onFocus={(event) => !readOnly && event.target.select()}
+          onChange={(event) => !readOnly && onChange(event.target.value)}
         />
         {suffix ? <span className="field-suffix">{suffix}</span> : null}
-      </div>
+      </span>
       {hint ? <small>{hint}</small> : null}
-    </div>
+    </label>
   );
 }
 
-function ResultTile({ label, value, note, type = "neutral" }) {
+function ResultMetric({ label, value, note, tone = "neutral" }) {
   return (
-    <div className={`result-tile result-${type}`}>
+    <div className={`metric-card ${tone}`}>
       <span>{label}</span>
       <strong>{value}</strong>
       {note ? <small>{note}</small> : null}
@@ -332,115 +306,111 @@ function ResultTile({ label, value, note, type = "neutral" }) {
   );
 }
 
-function MarginOrbit({ result }) {
-  const percent =
-    result.totalProductionCost > 0
-      ? safePercent(Math.abs(result.actualProfitPercent))
-      : 0;
-
-  const statusClass =
-    result.totalProductionCost <= 0 || result.sellingPrice <= 0
-      ? "orbit-idle"
-      : result.actualProfit < 0
-      ? "orbit-loss"
-      : result.actualProfitPercent >= 20
-      ? "orbit-profit"
-      : "orbit-warning";
+function ModuleButton({ item, active, onClick }) {
+  const isUniversal = item.type === "universal";
+  const Icon = item.type === "curd" ? Package : isUniversal ? DollarSign : Droplets;
 
   return (
-    <div
-      className={`margin-orbit ${statusClass}`}
-      style={{ "--p": `${percent}%` }}
-      aria-label="Margin score"
+    <button
+      type="button"
+      onClick={() => {
+        nudge();
+        onClick();
+      }}
+      className={`module-tile tone-${item.tone} ${active ? "active" : ""}`}
     >
-      <div className="orbit-ring">
-        <div className="orbit-core">
+      <span className="module-image">
+        <img src={item.image} alt="" loading="lazy" decoding="async" />
+      </span>
+      <span className="module-overlay" />
+      <span className="module-content">
+        <span className="module-chip">{item.metric}</span>
+        <strong>{item.label}</strong>
+        <small>{item.subtitle}</small>
+        <Icon size={18} className="module-icon" />
+      </span>
+    </button>
+  );
+}
+
+function MarginGauge({ result }) {
+  const actual = result.actualProfitPercent;
+  const percent = result.totalProductionCost > 0 ? clampPercent(Math.abs(actual)) : 0;
+  const state =
+    result.totalProductionCost <= 0 || result.sellingPrice <= 0
+      ? "idle"
+      : result.actualProfit < 0
+      ? "loss"
+      : actual >= 20
+      ? "profit"
+      : "warning";
+
+  return (
+    <div className={`margin-gauge ${state}`} style={{ "--progress": `${percent}%` }}>
+      <div className="gauge-ring">
+        <div className="gauge-core">
           <span>{result.actualProfit < 0 ? "Loss" : "Margin"}</span>
-          <strong>{result.actualProfitPercent.toFixed(1)}%</strong>
+          <strong>{actual.toFixed(1)}%</strong>
         </div>
       </div>
     </div>
   );
 }
 
-function SplashOverlay({ splash }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    if (splash) {
-      setMounted(true);
-      return;
-    }
-
-    const closeTimer = window.setTimeout(() => setMounted(false), 360);
-    return () => window.clearTimeout(closeTimer);
-  }, [splash]);
-
-  if (!mounted) return null;
-
-  let content = null;
-  let stateClass = "launch";
-
-  if (splash?.kind === "loss") {
-    content = {
-      image: ASSETS.loss,
-      title: "Negative Margin Detected",
-      text: "Production cost is higher than selling price.",
-    };
-    stateClass = "loss";
-  } else if (splash?.kind === "profit") {
-    content = {
-      image: ASSETS.profit,
-      title: "Profit Flow Active",
-      text: "Your pricing model is generating margin.",
-    };
-    stateClass = "profit";
-  } else if (splash?.type === "universal") {
-    content = {
-      image: ASSETS.universal,
-      title: "Universal Margin Studio",
-      text: "Opening custom product analysis mode.",
-    };
-  } else if (splash?.type) {
-    const config = PRODUCT_CONFIG[splash.type];
-    content = {
-      image: config.image,
-      title: config.launchTitle,
-      text: config.launchText,
-    };
-  }
-
-  if (!content) return null;
+function InsightPanel({ result, desiredPercent }) {
+  const status = getStatus(result);
+  const StatusIcon = status.icon;
 
   return (
-    <div className={`splash ${splash ? "show" : "hide"} splash-${stateClass}`}>
-      <div className="splash-orb" />
-      <div className="splash-card">
-        <div className="splash-media">
-          <img src={content.image} alt="" decoding="async" />
-          <div className="scan-line" />
-        </div>
-        <div className="splash-copy">
-          <span>Processing</span>
-          <h2>{content.title}</h2>
-          <p>{content.text}</p>
+    <aside className="insight-card">
+      <MarginGauge result={result} />
+
+      <div className={`status-card ${status.className}`}>
+        <StatusIcon size={21} />
+        <div>
+          <strong>{status.label}</strong>
+          <p>{status.message}</p>
         </div>
       </div>
-    </div>
+
+      <div className="metrics-grid">
+        <ResultMetric
+          label="Gross Cost"
+          value={money(result.totalProductionCost)}
+          note="Total making cost"
+        />
+        <ResultMetric
+          label="Target Profit"
+          value={money(result.suggestedProfit)}
+          note={`${toNumber(desiredPercent).toFixed(2)}% desired`}
+          tone="suggest"
+        />
+        <ResultMetric
+          label="Target Price"
+          value={money(result.suggestedSellingPrice)}
+          note="Ideal selling price"
+          tone="suggest"
+        />
+        <ResultMetric
+          label={result.actualProfit < 0 ? "Net Loss" : "Net Profit"}
+          value={money(result.actualProfit)}
+          note={`${result.actualProfitPercent.toFixed(2)}% ROI`}
+          tone={result.actualProfit < 0 ? "loss" : "profit"}
+        />
+      </div>
+    </aside>
   );
 }
 
 function QuantitySelector({ config, value, onSelect }) {
   return (
-    <section className="workspace-card animate-in">
-      <div className="workspace-head">
-        <div className="mini-photo">
-          <img src={config.image} alt={config.title} loading="lazy" decoding="async" />
-        </div>
+    <section className="panel-card step-card enter">
+      <div className="panel-head compact">
+        <img src={config.image} alt="" loading="lazy" decoding="async" />
         <div>
           <span className="eyebrow">Step 01</span>
-          <h2>Choose Volume</h2>
-          <p>Select the SKU size before entering costs.</p>
+          <h2>Choose volume</h2>
+          <p>Select SKU size to start pricing.</p>
         </div>
       </div>
 
@@ -449,12 +419,15 @@ function QuantitySelector({ config, value, onSelect }) {
           <button
             key={option.value}
             type="button"
-            onClick={() => onSelect(option.value)}
-            className={`choice-card ${value === option.value ? "is-selected" : ""}`}
+            onClick={() => {
+              nudge();
+              onSelect(option.value);
+            }}
+            className={`choice-btn ${value === option.value ? "selected" : ""}`}
           >
             <span>{option.label}</span>
-            <small>Open pricing model</small>
-            <ChevronRight aria-hidden="true" />
+            <small>Open cost model</small>
+            <ChevronRight size={18} />
           </button>
         ))}
       </div>
@@ -466,25 +439,20 @@ function ProductCalculator({ type, data, onChange, onReset }) {
   const config = PRODUCT_CONFIG[type];
   const Icon = config.icon;
   const result = useMemo(() => calculateProduct(data), [data]);
-  const status = getStatus(result);
-  const StatusIcon = status.icon;
 
   return (
-    <section className="module-shell animate-in">
-      <div className="module-top">
-        <div className="module-title">
-          <span className={`module-badge accent-${config.accent}`}>
-            <Icon size={18} />
-          </span>
-          <div>
-            <span className="eyebrow">Active Workspace</span>
-            <h2>{config.title}</h2>
-          </div>
+    <section className="workspace enter">
+      <div className="workspace-top">
+        <div className={`workspace-icon tone-${config.tone}`}>
+          <Icon size={19} />
         </div>
-
-        <button type="button" onClick={onReset} className="ghost-action">
-          <RefreshCcw size={16} />
-          Reset Module
+        <div>
+          <span className="eyebrow">Active workspace</span>
+          <h2>{config.title}</h2>
+        </div>
+        <button type="button" onClick={onReset} className="mini-action">
+          <RefreshCcw size={15} />
+          Reset
         </button>
       </div>
 
@@ -495,16 +463,16 @@ function ProductCalculator({ type, data, onChange, onReset }) {
           onSelect={(quantity) => onChange({ quantity })}
         />
       ) : (
-        <div className="calc-grid">
-          <div className="workspace-card input-panel">
-            <div className="panel-heading">
+        <div className="workspace-grid">
+          <div className="panel-card input-card">
+            <div className="panel-head split">
               <div>
                 <span className="eyebrow">Step 02</span>
-                <h2>Financial Inputs</h2>
-                <p>Live cost, sales, and target margin control for {data.quantity}.</p>
+                <h2>Enter costs</h2>
+                <p>Live Android-fast calculation for {data.quantity}.</p>
               </div>
-              <span className="sku-pill">
-                <Package size={15} />
+              <span className="sku-badge">
+                <Package size={14} />
                 {data.quantity}
               </span>
             </div>
@@ -514,16 +482,16 @@ function ProductCalculator({ type, data, onChange, onReset }) {
                 label="Production Cost"
                 value={data.productionCost}
                 onChange={(v) => onChange({ productionCost: v })}
-                hint="Milk sourcing / production"
+                hint="Milk sourcing / making"
               />
               <InputField
                 label="Packaging Cost"
                 value={data.packetCost}
                 onChange={(v) => onChange({ packetCost: v })}
-                hint="Bottle / pouch / label"
+                hint="Bottle / pouch / sticker"
               />
               <InputField
-                label="Operational Cost"
+                label="Other Cost"
                 value={data.otherCost}
                 onChange={(v) => onChange({ otherCost: v })}
                 hint="Delivery, labour, wastage"
@@ -540,7 +508,7 @@ function ProductCalculator({ type, data, onChange, onReset }) {
                 prefix=""
                 suffix="%"
                 onChange={(v) => onChange({ suggestedProfitPercent: v })}
-                hint="Your target profit %"
+                hint="Target profit percent"
               />
               <InputField
                 label="Live Net Profit"
@@ -552,43 +520,7 @@ function ProductCalculator({ type, data, onChange, onReset }) {
             </div>
           </div>
 
-          <aside className="insight-panel">
-            <MarginOrbit result={result} />
-
-            <div className={`status-strip ${status.className}`}>
-              <StatusIcon size={22} />
-              <div>
-                <strong>{status.label}</strong>
-                <p>{status.message}</p>
-              </div>
-            </div>
-
-            <div className="result-grid">
-              <ResultTile
-                label="Gross Cost"
-                value={money(result.totalProductionCost)}
-                note="Production + Packaging + Ops"
-              />
-              <ResultTile
-                label="Target Profit"
-                value={money(result.suggestedProfit)}
-                note={`${toNumber(data.suggestedProfitPercent).toFixed(2)}% desired margin`}
-                type="suggest"
-              />
-              <ResultTile
-                label="Target Price"
-                value={money(result.suggestedSellingPrice)}
-                note="Ideal selling price"
-                type="suggest"
-              />
-              <ResultTile
-                label={result.actualProfit < 0 ? "Net Loss" : "Net Profit"}
-                value={money(result.actualProfit)}
-                note={`${result.actualProfitPercent.toFixed(2)}% ROI`}
-                type={result.actualProfit < 0 ? "loss" : "profit"}
-              />
-            </div>
-          </aside>
+          <InsightPanel result={result} desiredPercent={data.suggestedProfitPercent} />
         </div>
       )}
     </section>
@@ -597,43 +529,38 @@ function ProductCalculator({ type, data, onChange, onReset }) {
 
 function UniversalCalculator({ data, onChange, onReset }) {
   const result = useMemo(() => calculateUniversal(data), [data]);
-  const status = getStatus(result);
-  const StatusIcon = status.icon;
 
   return (
-    <section className="module-shell animate-in">
-      <div className="module-top">
-        <div className="module-title">
-          <span className="module-badge accent-violet">
-            <DollarSign size={18} />
-          </span>
-          <div>
-            <span className="eyebrow">Active Workspace</span>
-            <h2>Universal Margin Studio</h2>
-          </div>
+    <section className="workspace enter">
+      <div className="workspace-top">
+        <div className="workspace-icon tone-violet">
+          <DollarSign size={19} />
         </div>
-
-        <button type="button" onClick={onReset} className="ghost-action">
-          <RefreshCcw size={16} />
-          Reset Module
+        <div>
+          <span className="eyebrow">Active workspace</span>
+          <h2>Universal Margin</h2>
+        </div>
+        <button type="button" onClick={onReset} className="mini-action">
+          <RefreshCcw size={15} />
+          Reset
         </button>
       </div>
 
-      <div className="calc-grid">
-        <div className="workspace-card input-panel">
-          <div className="panel-heading">
+      <div className="workspace-grid">
+        <div className="panel-card input-card">
+          <div className="panel-head split">
             <div>
               <span className="eyebrow">Custom SKU</span>
-              <h2>Any Product Pricing</h2>
-              <p>Use this for paneer, ghee, combo offers, transport charges, or new products.</p>
+              <h2>Any product</h2>
+              <p>Use for paneer, ghee, combos, delivery, or future products.</p>
             </div>
-            <span className="sku-pill">
-              <DollarSign size={15} />
+            <span className="sku-badge">
+              <DollarSign size={14} />
               Global
             </span>
           </div>
 
-          <div className="fields-grid fields-grid-universal">
+          <div className="fields-grid universal-fields">
             <InputField
               label="Base Cost"
               value={data.productionCost}
@@ -644,7 +571,7 @@ function UniversalCalculator({ data, onChange, onReset }) {
               label="Extra Cost"
               value={data.otherCost}
               onChange={(v) => onChange({ otherCost: v })}
-              hint="Delivery / packing / service"
+              hint="Packing, delivery, service"
             />
             <InputField
               label="Selling Price"
@@ -658,7 +585,7 @@ function UniversalCalculator({ data, onChange, onReset }) {
               prefix=""
               suffix="%"
               onChange={(v) => onChange({ suggestedProfitPercent: v })}
-              hint="Target profit %"
+              hint="Target profit percent"
             />
             <InputField
               label="Live Net Profit"
@@ -670,54 +597,38 @@ function UniversalCalculator({ data, onChange, onReset }) {
           </div>
         </div>
 
-        <aside className="insight-panel">
-          <MarginOrbit result={result} />
-
-          <div className={`status-strip ${status.className}`}>
-            <StatusIcon size={22} />
-            <div>
-              <strong>{status.label}</strong>
-              <p>{status.message}</p>
-            </div>
-          </div>
-
-          <div className="result-grid">
-            <ResultTile
-              label="Gross Cost"
-              value={money(result.totalProductionCost)}
-              note="Base + Extra Costs"
-            />
-            <ResultTile
-              label="Target Profit"
-              value={money(result.suggestedProfit)}
-              note={`${toNumber(data.suggestedProfitPercent).toFixed(2)}% desired margin`}
-              type="suggest"
-            />
-            <ResultTile
-              label="Target Price"
-              value={money(result.suggestedSellingPrice)}
-              note="Ideal selling price"
-              type="suggest"
-            />
-            <ResultTile
-              label={result.actualProfit < 0 ? "Net Loss" : "Net Profit"}
-              value={money(result.actualProfit)}
-              note={`${result.actualProfitPercent.toFixed(2)}% ROI`}
-              type={result.actualProfit < 0 ? "loss" : "profit"}
-            />
-          </div>
-        </aside>
+        <InsightPanel result={result} desiredPercent={data.suggestedProfitPercent} />
       </div>
     </section>
   );
 }
 
+function EmptyState({ onStart }) {
+  return (
+    <section className="empty-state enter">
+      <div className="empty-orb">
+        <Smartphone size={30} />
+      </div>
+      <span className="eyebrow">Android-first ready</span>
+      <h2>Choose a module to begin.</h2>
+      <p>
+        Designed like a fast mobile business app: quick touch response, lightweight
+        motion, instant calculations, and readable cards on small screens.
+      </p>
+      <button type="button" onClick={onStart} className="primary-btn">
+        Start Buffalo Pricing
+        <ChevronRight size={18} />
+      </button>
+    </section>
+  );
+}
+
 export default function App() {
+  useAndroidPerformanceMode();
+
   const [activeModule, setActiveModule] = useState("");
   const [products, setProducts] = useState(createInitialProducts);
   const [universal, setUniversal] = useState(createEmptyUniversal);
-  const [splash, setSplash] = useState(null);
-  const [lastFeedbackKey, setLastFeedbackKey] = useState("");
 
   const activeResult = useMemo(() => {
     if (!activeModule) return null;
@@ -725,41 +636,17 @@ export default function App() {
     return calculateProduct(products[activeModule]);
   }, [activeModule, products, universal]);
 
-  useEffect(() => {
-    if (!splash) return;
-
-    const duration = splash.kind === "launch" ? 760 : 1050;
-    const timer = window.setTimeout(() => setSplash(null), duration);
-
-    return () => window.clearTimeout(timer);
-  }, [splash]);
-
-  useEffect(() => {
-    if (!activeModule || !activeResult || splash?.kind === "launch") return;
-    if (activeResult.totalProductionCost <= 0 || activeResult.sellingPrice <= 0) return;
-
-    const mood = activeResult.actualProfit < 0 ? "loss" : "profit";
-    const key = [
-      activeModule,
-      mood,
-      activeResult.totalProductionCost.toFixed(2),
-      activeResult.sellingPrice.toFixed(2),
-    ].join("-");
-
-    if (key === lastFeedbackKey) return;
-
-    const timer = window.setTimeout(() => {
-      setLastFeedbackKey(key);
-      setSplash({ type: activeModule, kind: mood });
-    }, 520);
-
-    return () => window.clearTimeout(timer);
-  }, [activeModule, activeResult, lastFeedbackKey, splash]);
+  const activeStatus = activeResult ? getStatus(activeResult) : null;
+  const activeProfit = activeResult ? activeResult.actualProfit : 0;
 
   const openModule = (type) => {
     setActiveModule(type);
-    setLastFeedbackKey("");
-    setSplash({ type, kind: "launch" });
+    window.requestAnimationFrame(() => {
+      document.querySelector(".workspace-area")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
   };
 
   const updateProduct = (type, partial) => {
@@ -776,182 +663,110 @@ export default function App() {
     setProducts(createInitialProducts());
     setUniversal(createEmptyUniversal());
     setActiveModule("");
-    setSplash(null);
-    setLastFeedbackKey("");
   };
 
-  const topStatus = activeResult ? getStatus(activeResult) : null;
-
   return (
-    <>
-      <div className="ambient-scene" aria-hidden="true">
-        <div className="mesh mesh-one" />
-        <div className="mesh mesh-two" />
-        <div className="mesh mesh-three" />
-        <div className="liquid-grid" />
+    <main className="app-root">
+      <div className="fast-bg" aria-hidden="true">
+        <div className="bg-orb orb-a" />
+        <div className="bg-orb orb-b" />
+        <div className="bg-grid" />
       </div>
 
-      <SplashOverlay splash={splash} />
-
-      <main className="app-shell">
-        <nav className="top-glass">
-          <div className="brand-mark">
-            <span>P</span>
-          </div>
-          <div className="brand-copy">
-            <span>Palicious</span>
-            <strong>Pricing Intelligence</strong>
-          </div>
-
-          <div className="top-metrics" aria-label="Workspace status">
-            <div>
-              <span>Mode</span>
-              <strong>{activeModule ? "Active" : "Idle"}</strong>
-            </div>
-            <div>
-              <span>Status</span>
-              <strong>{topStatus ? topStatus.label : "Ready"}</strong>
-            </div>
-            <div>
-              <span>Session</span>
-              <strong>Secure</strong>
-            </div>
-          </div>
-
-          <button type="button" onClick={resetAll} className="reset-button">
-            <RefreshCcw size={16} />
-            Reset
-          </button>
-        </nav>
-
-        <header className="hero-zone">
-          <div className="hero-copy">
-            <span className="eyebrow hero-eyebrow">Liquid 3D Margin Workspace</span>
-            <h1>
-              Premium pricing
-              <span> control room</span>
-              <em> for dairy growth.</em>
-            </h1>
-            <p>
-              Fluid UI, live margin intelligence, instant loss alerts, target price
-              suggestions, and mobile-first business control for Palicious.
-            </p>
-
-            <div className="hero-actions">
-              <button
-                type="button"
-                onClick={() => openModule("buffalo")}
-                className="primary-cta"
-              >
-                Start Pricing
-                <ChevronRight size={18} />
-              </button>
-              <button type="button" onClick={resetAll} className="secondary-cta">
-                Clean Environment
-              </button>
-            </div>
-          </div>
-
-          <div className="hero-visual" aria-hidden="true">
-            <div className="holo-card holo-main">
-              <span>Live Margin</span>
-              <strong>
-                {activeResult ? `${activeResult.actualProfitPercent.toFixed(1)}%` : "0.0%"}
-              </strong>
-              <small>{activeModule ? "Current workspace" : "Select a module"}</small>
-            </div>
-            <div className="holo-card holo-mini-one">
-              <TrendingUp size={18} />
-              <span>Profit AI</span>
-            </div>
-            <div className="holo-card holo-mini-two">
-              <Droplets size={18} />
-              <span>Dairy Ops</span>
-            </div>
-            <div className="holo-orbit" />
-          </div>
-        </header>
-
-        <section className="module-dock" aria-label="Pricing modules">
-          {MODULES.map((item) => {
-            const isActive = activeModule === item.type;
-            return (
-              <TiltCard
-                key={item.type}
-                type={item.type}
-                active={isActive}
-                onClick={() => openModule(item.type)}
-                className="module-card"
-              >
-                <div className="module-card-bg">
-                  <img
-                    src={item.image}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className="card-shine" />
-                <div className="module-card-content">
-                  <span className="module-chip">{item.metric}</span>
-                  <div>
-                    <strong>{item.label}</strong>
-                    <small>{item.subtitle}</small>
-                  </div>
-                  <ChevronRight size={18} />
-                </div>
-              </TiltCard>
-            );
-          })}
-        </section>
-
-        <section className="workspace-area">
-          {!activeModule ? (
-            <div className="empty-state animate-in">
-              <div className="empty-orb">
-                <Activity size={34} />
-              </div>
-              <span className="eyebrow">Workspace Ready</span>
-              <h2>Select a pricing module</h2>
-              <p>
-                Choose Buffalo, Cow, Curd, or Universal tool above. The dashboard
-                will open with live cost input, profit analysis, target pricing,
-                and premium animated feedback.
-              </p>
-            </div>
-          ) : activeModule === "universal" ? (
-            <UniversalCalculator
-              data={universal}
-              onChange={(partial) =>
-                setUniversal((prev) => ({
-                  ...prev,
-                  ...partial,
-                }))
-              }
-              onReset={() => setUniversal(createEmptyUniversal())}
-            />
-          ) : (
-            <ProductCalculator
-              type={activeModule}
-              data={products[activeModule]}
-              onChange={(partial) => updateProduct(activeModule, partial)}
-              onReset={() =>
-                setProducts((prev) => ({
-                  ...prev,
-                  [activeModule]: createEmptyProduct(),
-                }))
-              }
-            />
-          )}
-        </section>
-
-        <footer className="app-footer">
+      <nav className="app-topbar">
+        <div className="brand-block">
+          <span className="brand-logo">P</span>
           <span>
-            <strong>Palicious</strong> Enterprise Margin Workspace
+            <small>Palicious</small>
+            <strong>Pricing OS</strong>
           </span>
-          <span>CSS 3D · Liquid Glass · Mobile First · No heavy 3D library</span>
-        </footer>
-      </main>
-    </>
+        </div>
+
+        <div className={`top-status ${activeStatus?.className || "idle"}`}>
+          <span>{activeStatus?.label || "Ready"}</span>
+          <strong>{money(activeProfit)}</strong>
+        </div>
+
+        <button type="button" onClick={resetAll} className="top-reset" aria-label="Reset app">
+          <RefreshCcw size={17} />
+        </button>
+      </nav>
+
+      <header className="hero-card">
+        <div className="hero-copy">
+          <span className="eyebrow hero-eyebrow">
+            <Zap size={14} />
+            Android superfast edition
+          </span>
+          <h1>
+            Premium dairy <span>pricing control</span>
+          </h1>
+          <p>
+            Ultra-fluid mobile UI for Palicious with live margin intelligence,
+            instant profit/loss view, and app-like touch experience.
+          </p>
+
+          <div className="hero-pills">
+            <span>
+              <Smartphone size={14} />
+              Mobile-first
+            </span>
+            <span>
+              <ShieldCheck size={14} />
+              Stable logic
+            </span>
+            <span>
+              <Activity size={14} />
+              Live maths
+            </span>
+          </div>
+        </div>
+
+        <div className="hero-profit-card" aria-label="Current profit summary">
+          <span>Live Net</span>
+          <strong>{money(activeProfit)}</strong>
+          <small>{activeStatus?.label || "No module selected"}</small>
+        </div>
+      </header>
+
+      <section className="module-rail" aria-label="Pricing modules">
+        {MODULES.map((item) => (
+          <ModuleButton
+            key={item.type}
+            item={item}
+            active={activeModule === item.type}
+            onClick={() => openModule(item.type)}
+          />
+        ))}
+      </section>
+
+      <section className="workspace-area">
+        {!activeModule ? (
+          <EmptyState onStart={() => openModule("buffalo")} />
+        ) : activeModule === "universal" ? (
+          <UniversalCalculator
+            data={universal}
+            onChange={(partial) => setUniversal((prev) => ({ ...prev, ...partial }))}
+            onReset={() => setUniversal(createEmptyUniversal())}
+          />
+        ) : (
+          <ProductCalculator
+            type={activeModule}
+            data={products[activeModule]}
+            onChange={(partial) => updateProduct(activeModule, partial)}
+            onReset={() =>
+              setProducts((prev) => ({ ...prev, [activeModule]: createEmptyProduct() }))
+            }
+          />
+        )}
+      </section>
+
+      <footer className="app-footer">
+        <span>
+          <strong>Palicious</strong> Android pricing workspace
+        </span>
+        <span>Fast UI • Low motion • Responsive</span>
+      </footer>
+    </main>
   );
 }
